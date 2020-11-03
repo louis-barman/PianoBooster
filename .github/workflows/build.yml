@@ -89,52 +89,52 @@ jobs:
 #        shell: bash
 #
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: [macos-build, linux-build]
-    strategy:
-      matrix:
-        env:
-          - {
-            ARTIFACT: linux-build,
-            ASSET_PATH: PianoBooster-x86_64.AppImage,
-            ASSET_NAME: PianoBooster-x86_64-$$.AppImage,
-            ASSET_CONTENT_TYPE: application/appimage
-          }
-          - {
-            ARTIFACT: mac-build,
-            ASSET_PATH: PianoBooster.dmg,
-            ASSET_NAME: PianoBooster_$$.dmg,
-            ASSET_CONTENT_TYPE: application/dmg
-          }
-    env: ${{ matrix.env }}
-    steps:
-    - name: Publish snapshot build
-      #if: contains(github.ref, 'develop')
-      run: |
-        find .
-        ls -la
-        set
-    - name: Download build
-      uses: actions/download-artifact@v2
-      with:
-        name: ${{ env.ARTIFACT }}
-    - name: Snapshot Release
-      uses: WebFreak001/deploy-nightly@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: https://uploads.github.com/repos/winder/PianoBooster/releases/32197618/assets{?name,label}
-        release_id: 32197618
-        asset_path: ${{ env.ASSET_PATH }}
-        asset_name: ${{ env.ASSET_NAME }}
-        asset_content_type: ${{ env.ASSET_CONTENT_TYPE }}
-        max_releases: 30
-
-#    - name: Create release
-#      if: contains(github.ref, 'master')
+#  deploy:
+#    runs-on: ubuntu-latest
+#    needs: [macos-build, linux-build]
+#    strategy:
+#      matrix:
+#        env:
+#          - {
+#            ARTIFACT: linux-build,
+#            ASSET_PATH: PianoBooster-x86_64.AppImage,
+#            ASSET_NAME: PianoBooster-x86_64-$$.AppImage,
+#            ASSET_CONTENT_TYPE: application/appimage
+#          }
+#          - {
+#            ARTIFACT: mac-build,
+#            ASSET_PATH: PianoBooster.dmg,
+#            ASSET_NAME: PianoBooster_$$.dmg,
+#            ASSET_CONTENT_TYPE: application/dmg
+#          }
+#    env: ${{ matrix.env }}
+#    steps:
+#    - name: Publish snapshot build
+#      #if: contains(github.ref, 'develop')
 #      run: |
 #        find .
 #        ls -la
+#        set
+#    - name: Download build
+#      uses: actions/download-artifact@v2
+#      with:
+#        name: ${{ env.ARTIFACT }}
+#    - name: Snapshot Release
+#      uses: WebFreak001/deploy-nightly@v1.0.1
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      with:
+#        upload_url: https://uploads.github.com/repos/winder/PianoBooster/releases/32197618/assets{?name,label}
+#        release_id: 32197618
+#        asset_path: ${{ env.ASSET_PATH }}
+#        asset_name: ${{ env.ASSET_NAME }}
+#        asset_content_type: ${{ env.ASSET_CONTENT_TYPE }}
+#        max_releases: 30
+
+##    - name: Create release
+##      if: contains(github.ref, 'master')
+##      run: |
+##        find .
+##        ls -la
 
 
