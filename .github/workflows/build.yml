@@ -15,7 +15,18 @@ jobs:
           wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
           wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
           chmod +x linuxdeploy*.AppImage
+
+      - name: Define variables
+        run: |
+          pb_ver=`grep PB_VERSION src/version.txt | cut -d "\"" -f 2`
+          pb_app_name="PianoBooster-${pb_ver}-x86_64"
+          echo "PB_VERSION=${pb_ver}">> $GITHUB_ENV
+          echo "PB_APP_NAME=${pb_app_name}">> $GITHUB_ENV
+          echo "PB_APP_NAME=${pb_app_name}"
+
       - name: Build
+        env:
+          pb_app_name: ${{ env.PB_APP_NAME }}
         run: |
           mkdir build
           cd build
@@ -30,18 +41,18 @@ jobs:
           find .
           echo "Done!"
           chmod +x *AppImage
-          mv *AppImage ../PianoBooster-x86_64.AppImage
+          mv *AppImage ../${pb_app_name}.AppImage
           cd ..
-          md5sum PianoBooster-x86_64.AppImage >PianoBooster-x86_64.md5
-          cat PianoBooster-x86_64.md5
-          ls -lh PianoBooster-x86_64.AppImage
+          ls -lh ${pb_app_name}.AppImage
+          md5sum ${pb_app_name}.AppImage >checksum.txt
+          cat checksum.txt
       - name: Upload Linux Build
         uses: actions/upload-artifact@v2
         with:
-          name: linux-build
+          name: pianobooster-linux-${{ env.PB_VERSION }}
           path: |
-            PianoBooster-x86_64.AppImage
-            PianoBooster-x86_64.md5
+             ${{ env.PB_APP_NAME }}.AppImage
+             checksum.txt
 
   macos-build:
     runs-on: macos-latest
@@ -53,8 +64,16 @@ jobs:
           brew update || brew update
           brew upgrade
           brew install cmake qt5 ftgl pkg-config fluid-synth
-          ls -R /usr/local/Cellar/fluid-synth/
+      - name: Define variables
+        run: |
+          pb_ver=`grep PB_VERSION src/version.txt | cut -d "\"" -f 2`
+          pb_app_name="PianoBooster-${pb_ver}"
+          echo "PB_VERSION=${pb_ver}">> $GITHUB_ENV
+          echo "PB_APP_NAME=${pb_app_name}">> $GITHUB_ENV
+          echo "PB_APP_NAME=${pb_app_name}"
       - name: Build
+        env:
+          pb_app_name: ${{ env.PB_APP_NAME }}
         run: |
           mkdir build
           cd build
@@ -64,18 +83,18 @@ jobs:
           $(brew --prefix qt)/bin/macdeployqt build/pianobooster.app -dmg
           find .
           echo "Done!"
-          mv build/*dmg ../PianoBooster.dmg
+          mv build/*dmg ../${pb_app_name}.dmg
           cd ..
-          md5 -r PianoBooster.dmg > PianoBooster.md5
-          cat PianoBooster.md5
-          ls -lh PianoBooster.dmg
+          ls -lh ${pb_app_name}.dmg
+          md5 -r ${pb_app_name}.dmg > checksum.txt
+          cat checksum.txt
       - name: Upload Mac Build
         uses: actions/upload-artifact@v2
         with:
-          name: mac-build
+          name: pianobooster-mac-${{ env.PB_VERSION }}
           path: |
-            PianoBooster.dmg
-            PianoBooster.md5
+            ${{ env.PB_APP_NAME }}.dmg
+            checksum.txt
 
 
 #  windows-build:
